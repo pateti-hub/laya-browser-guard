@@ -23,6 +23,13 @@ chrome.runtime.onMessage.addListener((message, _sender, respond) => {
   if (message?.target === "offscreen") return false;
   (async () => {
     try {
+      if (message?.type === "MODEL_STATUS_UPDATE" && message.target === "background") {
+        const update = { modelStatus: message.status };
+        if (typeof message.modelEnabled === "boolean") update.modelEnabled = message.modelEnabled;
+        await chrome.storage.local.set(update);
+        respond({ ok: true });
+        return;
+      }
       if (message?.type === "MODEL_PREPARE") {
         respond(await modelCommand("prepare"));
         return;

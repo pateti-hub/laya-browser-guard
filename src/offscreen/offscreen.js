@@ -2,9 +2,17 @@ import { compactContext, normalizeModelEvaluation, QUESTIONS } from "../model/de
 import { cachedModelBytes, deleteModelCache, LayaSession, MODEL_REVISION } from "../model/session.js";
 
 let sessionPromise;
-const setStatus = (status) => chrome.storage.local.set({
-  modelStatus: { revision: MODEL_REVISION, updatedAt: new Date().toISOString(), ...status }
-});
+let currentStatus = { state: "not_downloaded", revision: MODEL_REVISION };
+const setStatus = async (status, modelEnabled) => {
+  currentStatus = { revision: MODEL_REVISION, updatedAt: new Date().toISOString(), ...status };
+  await chrome.runtime.sendMessage({
+    type: "MODEL_STATUS_UPDATE",
+    target: "background",
+    status: currentStatus,
+    ...(typeof modelEnabled === "boolean" ? { modelEnabled } : {})
+  });
+  return currentStatus;
+};
 
 async function prepare() {
   if (!sessionPromise) {
@@ -12,8 +20,7 @@ async function prepare() {
       const percent = progress.total ? Math.round(progress.loaded / progress.total * 100) : null;
       await setStatus({ state: progress.phase, file: progress.file, loaded: progress.loaded, total: progress.total, percent });
     }).then(async (session) => {
-      await chrome.storage.local.set({ modelEnabled: true });
-      await setStatus({ state: "ready", cachedBytes: await cachedModelBytes() });
+      await setStatus({ state: "ready", cachedBytes: await cachedModelBytes() }, true);
       return session;
     }).catch(async (error) => {
       sessionPromise = undefined;
@@ -30,7 +37,7 @@ chrome.runtime.onMessage.addListener((message, _sender, respond) => {
     try {
       if (message.command === "prepare") {
         await prepare();
-        respond({ ok: true, status: (await chrome.storage.local.get("modelStatus")).modelStatus });
+        respond({ ok: true, status: currentStatus });
       } else if (message.command === "evaluate") {
         const session = await prepare();
         const answers = await session.systemOne(compactContext(message.context), QUESTIONS);
@@ -38,8 +45,7 @@ chrome.runtime.onMessage.addListener((message, _sender, respond) => {
       } else if (message.command === "delete") {
         sessionPromise = undefined;
         await deleteModelCache();
-        await chrome.storage.local.set({ modelEnabled: false });
-        await setStatus({ state: "not_downloaded", cachedBytes: 0 });
+        await setStatus({ state: "not_downloaded", cachedBytes: 0 }, false);
         respond({ ok: true });
       }
     } catch (error) {
