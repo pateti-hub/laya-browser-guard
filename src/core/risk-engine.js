@@ -131,7 +131,9 @@ export async function evaluatePageContext(context, options = {}) {
   if (hasDeceptiveUrgency) findings.push("Page applies multiple urgency or scarcity cues");
   if (isPhishing) findings.push("Account-pressure language is combined with sensitive or suspicious signals");
   if (context.domSignals?.countdown) findings.push("Page contains a countdown-style element");
-  if (model.available && model.riskScore >= 60) findings.push("The local Laya model independently identified elevated risk");
+  if (model.available && model.riskScore >= 60 && score >= 25) {
+    findings.push("The local Laya model independently identified elevated risk");
+  }
 
   const evidenceCount = text.trim().length > 20
     ? 1 + (context.linkTargets?.length || 0) + (context.forms?.length || 0)

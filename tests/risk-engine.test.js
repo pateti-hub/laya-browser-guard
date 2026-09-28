@@ -71,3 +71,12 @@ test("fuses a model score without allowing it to erase deterministic risk", asyn
   });
   assert.ok(fused.riskScore >= baseline.riskScore);
 });
+
+test("does not show elevated-risk wording when the final verdict is safe", async () => {
+  const result = await evaluatePageContext(context(), {
+    modelEvaluation: { available: true, provider: "test", riskScore: 80, decisions: {} }
+  });
+  assert.equal(result.verdict, "SAFE");
+  assert.ok(!result.explanation.includes("elevated risk"));
+  assert.ok(!result.evidence.some((item) => item.includes("elevated risk")));
+});
