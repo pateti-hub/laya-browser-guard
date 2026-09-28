@@ -5,7 +5,7 @@
   "minimum_chrome_version": "121",
   "description": "Private, local analysis for phishing, subscription traps and deceptive page patterns.",
   "permissions": ["activeTab", "scripting", "storage", "offscreen", "unlimitedStorage"],
-  "optional_host_permissions": [
+  "host_permissions": [
     "https://huggingface.co/*",
     "https://*.huggingface.co/*",
     "https://*.xethub.hf.co/*"

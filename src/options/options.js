@@ -30,21 +30,14 @@ async function load() {
 }
 
 $("download").addEventListener("click", async () => {
-  const granted = await chrome.permissions.request({
-    origins: [
-      "https://huggingface.co/*",
-      "https://*.huggingface.co/*",
-      "https://*.xethub.hf.co/*"
-    ]
-  });
-  if (!granted) {
-    renderModelStatus({ state: "error", error: "Hugging Face download permission was not granted" });
-    return;
+  try {
+    renderModelStatus({ state: "downloading", file: "initializing", percent: 0 });
+    const response = await chrome.runtime.sendMessage({ type: "MODEL_PREPARE" });
+    if (!response?.ok) throw new Error(response?.error || "Download failed");
+    await refresh();
+  } catch (error) {
+    renderModelStatus({ state: "error", error: error.message || "Download failed" });
   }
-  renderModelStatus({ state: "downloading", file: "initializing", percent: 0 });
-  const response = await chrome.runtime.sendMessage({ type: "MODEL_PREPARE" });
-  if (!response?.ok) renderModelStatus({ state: "error", error: response?.error || "Download failed" });
-  await refresh();
 });
 
 $("delete").addEventListener("click", async () => {
