@@ -1,0 +1,16 @@
+{
+  "name": "laya-browser-guard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Privacy-first, multi-signal browser risk analysis.",
+  "scripts": {
+    "test": "node --test",
+    "check": "find src tests -name '*.js' -print0 | xargs -0 -n1 node --check",
+    "verify": "npm run check && npm test",
+    "package": "rm -rf dist && mkdir -p dist && cp -R manifest.json src assets dist/ && cd dist && zip -qr ../laya-browser-guard.zip ."
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

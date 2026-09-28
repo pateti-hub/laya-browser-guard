@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Laya Browser Guard",
+  "version": "0.1.0",
+  "description": "Private, local analysis for phishing, subscription traps and deceptive page patterns.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "background": {
+    "service_worker": "src/background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Analyze this page",
+    "default_popup": "src/popup/popup.html"
+  },
+  "options_page": "src/options/options.html"
+}

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Laya Browser Guard</title><link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main>
+    <header><span class="mark">L</span><div><strong>Laya Browser Guard</strong><small>Private multi-signal analysis</small></div></header>
+    <section id="idle"><p>Analyze the active page for phishing, subscription traps, and deceptive patterns.</p><button id="analyze">Analyze this page</button></section>
+    <section id="loading" hidden><div class="spinner"></div><p>Collecting safe page signals…</p></section>
+    <section id="result" hidden>
+      <div class="score-row"><span id="verdict"></span><strong id="score"></strong></div>
+      <div class="meter"><i id="meter"></i></div><p id="explanation"></p><ul id="evidence"></ul>
+      <button id="show" class="secondary">Show on page</button>
+      <button id="again" class="link">Analyze again</button>
+    </section>
+    <p id="error" class="error" hidden></p>
+    <footer>No passwords, field values, or browsing history are collected. <a href="../options/options.html" target="_blank">Settings</a></footer>
+  </main><script src="popup.js"></script>
+</body>
+</html>
