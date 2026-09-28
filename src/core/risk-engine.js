@@ -117,6 +117,10 @@ export async function evaluatePageContext(context, options = {}) {
   score += Math.min(darkPatterns * 5, 15);
   if (isPhishing) score += 18;
   score = Math.min(Math.round(score), 100);
+  const model = await new LocalModelAdapter({ evaluation: options.modelEvaluation }).evaluate(context);
+  if (model.available && Number.isFinite(model.riskScore)) {
+    score = Math.max(score, Math.round(score * 0.75 + model.riskScore * 0.25));
+  }
 
   const findings = [
     ...domain.findings,
@@ -127,6 +131,7 @@ export async function evaluatePageContext(context, options = {}) {
   if (hasDeceptiveUrgency) findings.push("Page applies multiple urgency or scarcity cues");
   if (isPhishing) findings.push("Account-pressure language is combined with sensitive or suspicious signals");
   if (context.domSignals?.countdown) findings.push("Page contains a countdown-style element");
+  if (model.available && model.riskScore >= 60) findings.push("The local Laya model independently identified elevated risk");
 
   const evidenceCount = text.trim().length > 20
     ? 1 + (context.linkTargets?.length || 0) + (context.forms?.length || 0)
@@ -136,20 +141,24 @@ export async function evaluatePageContext(context, options = {}) {
   else if (score >= 65) verdict = "HIGH_RISK";
   else if (score >= 25) verdict = "SUSPICIOUS";
 
+  const mergedSubscriptionTrap = isSubscriptionTrap || Boolean(model.decisions?.isSubscriptionTrap >= 0.75);
+  const mergedUrgency = hasDeceptiveUrgency || Boolean(model.decisions?.hasDeceptiveUrgency >= 0.75);
+  const mergedPhishing = isPhishing || Boolean(model.decisions?.isPhishing >= 0.8);
+  const mergedSensitive = asksForSensitiveInformation || Boolean(model.decisions?.asksForSensitiveInformation >= 0.8);
+  const mergedDomain = domain.suspicious || Boolean(model.decisions?.isDomainSuspicious >= 0.8);
   const riskTypes = [];
-  if (isSubscriptionTrap) riskTypes.push("SUBSCRIPTION_TRAP");
-  if (isPhishing) riskTypes.push("PHISHING");
-  if (hasDeceptiveUrgency || darkPatterns || context.domSignals?.precheckedConsent) riskTypes.push("DARK_PATTERN");
+  if (mergedSubscriptionTrap) riskTypes.push("SUBSCRIPTION_TRAP");
+  if (mergedPhishing) riskTypes.push("PHISHING");
+  if (mergedUrgency || darkPatterns || context.domSignals?.precheckedConsent) riskTypes.push("DARK_PATTERN");
 
-  const model = await new LocalModelAdapter({ enabled: options.modelEnabled }).evaluate(context);
   return {
     verdict,
     riskScore: score,
-    isSubscriptionTrap,
-    hasDeceptiveUrgency,
-    isPhishing,
-    asksForSensitiveInformation,
-    isDomainSuspicious: domain.suspicious,
+    isSubscriptionTrap: mergedSubscriptionTrap,
+    hasDeceptiveUrgency: mergedUrgency,
+    isPhishing: mergedPhishing,
+    asksForSensitiveInformation: mergedSensitive,
+    isDomainSuspicious: mergedDomain,
     riskTypes,
     evidence: [...new Set(findings)].slice(0, 8),
     explanation: findings[0] || (verdict === "SAFE"

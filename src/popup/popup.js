@@ -27,6 +27,7 @@ function render(result) {
   $("verdict").style.color = color; $("score").textContent = `${result.riskScore}/100`;
   $("meter").style.width = `${result.riskScore}%`; $("meter").style.background = color;
   $("explanation").textContent = result.explanation;
+  $("engine").textContent = result.model?.available ? "Laya Q8 model + deterministic signals" : "Deterministic local analysis";
   $("evidence").replaceChildren(...result.evidence.map((text) => Object.assign(document.createElement("li"), { textContent: text })));
   $("result").hidden = false;
 }

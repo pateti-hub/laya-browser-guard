@@ -57,3 +57,17 @@ test("returns insufficient evidence for an empty page", async () => {
   const result = await evaluatePageContext(context({ text: "", pageTitle: "", linkTargets: [] }));
   assert.equal(result.verdict, "INSUFFICIENT_EVIDENCE");
 });
+
+test("fuses a model score without allowing it to erase deterministic risk", async () => {
+  const risky = context({
+    url: "http://openai-account-support.xyz/login",
+    domain: "openai-account-support.xyz",
+    text: "Security alert. Verify your account immediately. Confirm your password.",
+    forms: [{ action: "http://collector.example", inputTypes: ["password"], asksForPassword: true }]
+  });
+  const baseline = await evaluatePageContext(risky);
+  const fused = await evaluatePageContext(risky, {
+    modelEvaluation: { available: true, provider: "test", riskScore: 0, decisions: {} }
+  });
+  assert.ok(fused.riskScore >= baseline.riskScore);
+});

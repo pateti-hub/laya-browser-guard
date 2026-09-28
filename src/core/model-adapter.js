@@ -4,11 +4,12 @@
  * tokenizer are supplied, the deterministic risk engine remains authoritative.
  */
 export class LocalModelAdapter {
-  constructor({ enabled = false } = {}) {
-    this.enabled = enabled;
+  constructor({ evaluation = null } = {}) {
+    this.evaluation = evaluation;
   }
 
   async evaluate() {
+    if (this.evaluation) return this.evaluation;
     return {
       available: false,
       provider: "deterministic-fallback",

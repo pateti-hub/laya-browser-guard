@@ -6,11 +6,20 @@
   "description": "Privacy-first, multi-signal browser risk analysis.",
   "scripts": {
     "test": "node --test",
+    "test:model": "node scripts/model-smoke.mjs",
     "check": "find src tests -name '*.js' -print0 | xargs -0 -n1 node --check",
-    "verify": "npm run check && npm test",
-    "package": "rm -rf dist && mkdir -p dist && cp -R manifest.json src assets dist/ && cd dist && zip -qr ../laya-browser-guard.zip ."
+    "build": "node build.mjs",
+    "verify": "npm run check && npm test && npm run build",
+    "package": "npm run build && cd dist && zip -qr ../laya-browser-guard.zip ."
   },
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "4.3.0",
+    "onnxruntime-web": "1.30.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.10"
   }
 }

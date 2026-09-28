@@ -18,3 +18,7 @@
 - Content hidden inside cross-origin frames
 
 The engine reports evidence and supports an insufficient-evidence outcome rather than forcing a binary claim.
+
+## Model supply-chain controls
+
+The model URL is pinned to an immutable Hugging Face revision. Large ONNX graphs and external-data files are verified using their published SHA-256 LFS identifiers before execution. Runtime JavaScript and WASM are bundled with the extension; no remotely hosted code is executed.
