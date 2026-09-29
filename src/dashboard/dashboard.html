@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Website Security Copilot</title><link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <header><div><span class="mark">L</span><strong>Website Security Copilot</strong></div><button id="export">Export JSON report</button></header>
+  <main>
+    <section id="empty" hidden><h1>No report available</h1><p>Analyze a website with the extension first.</p></section>
+    <section id="report" hidden>
+      <div class="hero">
+        <div><p class="eyebrow">PASSIVE SECURITY ASSESSMENT</p><h1 id="domain"></h1><p id="meta"></p></div>
+        <div class="score"><strong id="score"></strong><span id="verdict"></span></div>
+      </div>
+      <div class="counts">
+        <article class="high"><strong id="high">0</strong><span>High</span></article>
+        <article class="medium"><strong id="medium">0</strong><span>Medium</span></article>
+        <article class="low"><strong id="low">0</strong><span>Low</span></article>
+        <article class="info"><strong id="informational">0</strong><span>Informational</span></article>
+      </div>
+      <div class="layout">
+        <section><h2>Security observations</h2><div id="findings"></div></section>
+        <aside id="detail"><h2>Select a finding</h2><p>Choose an observation to view its evidence, impact, and recommended investigation.</p></aside>
+      </div>
+      <section class="limitations"><h2>Scope and limitations</h2><ul id="limitations"></ul></section>
+    </section>
+  </main><script src="dashboard.js"></script>
+</body>
+</html>

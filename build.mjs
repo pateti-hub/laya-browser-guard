@@ -10,6 +10,8 @@ await Promise.all([
   cp("src/popup/popup.css", "dist/popup/popup.css"),
   cp("src/options/options.html", "dist/options/options.html"),
   cp("src/options/options.css", "dist/options/options.css"),
+  cp("src/dashboard/dashboard.html", "dist/dashboard/dashboard.html"),
+  cp("src/dashboard/dashboard.css", "dist/dashboard/dashboard.css"),
   cp("src/offscreen/offscreen.html", "dist/offscreen/offscreen.html")
 ]);
 
@@ -18,6 +20,7 @@ for (const [entry, outfile, format] of [
   ["src/content.js", "dist/content.js", "iife"],
   ["src/popup/popup.js", "dist/popup/popup.js", "iife"],
   ["src/options/options.js", "dist/options/options.js", "iife"],
+  ["src/dashboard/dashboard.js", "dist/dashboard/dashboard.js", "iife"],
   ["src/offscreen/offscreen.js", "dist/offscreen/offscreen.js", "iife"]
 ]) {
   await build({

@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Laya Browser Guard",
+  "name": "Laya Website Security Copilot",
   "version": "0.1.0",
   "minimum_chrome_version": "121",
-  "description": "Private, local analysis for phishing, subscription traps and deceptive page patterns.",
+  "description": "Passive browser security observations, deterministic checks, and local Laya-assisted interpretation.",
   "permissions": ["activeTab", "scripting", "storage", "offscreen", "unlimitedStorage"],
   "host_permissions": [
     "https://huggingface.co/*",
@@ -15,7 +15,7 @@
     "type": "module"
   },
   "action": {
-    "default_title": "Analyze this page",
+    "default_title": "Analyze this website",
     "default_popup": "popup/popup.html"
   },
   "options_page": "options/options.html",

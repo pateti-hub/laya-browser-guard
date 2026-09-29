@@ -7,8 +7,9 @@ async function analyze() {
   try {
     [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!activeTab?.id || !/^https?:/i.test(activeTab.url || "")) throw new Error("Open a normal website before running the analysis.");
-    await chrome.scripting.executeScript({ target: { tabId: activeTab.id }, files: ["src/content.js"] });
-    const collected = await chrome.tabs.sendMessage(activeTab.id, { type: "COLLECT_PAGE_CONTEXT" });
+    const settings = await chrome.storage.local.get({ researchMode: false });
+    await chrome.scripting.executeScript({ target: { tabId: activeTab.id }, files: ["content.js"] });
+    const collected = await chrome.tabs.sendMessage(activeTab.id, { type: "COLLECT_PAGE_CONTEXT", researchMode: settings.researchMode });
     if (!collected?.ok) throw new Error("Could not collect page evidence.");
     const analyzed = await chrome.runtime.sendMessage({ type: "ANALYZE_CONTEXT", context: collected.context });
     if (!analyzed?.ok) throw new Error(analyzed?.error || "Analysis failed.");
@@ -36,5 +37,9 @@ $("analyze").addEventListener("click", analyze);
 $("again").addEventListener("click", analyze);
 $("show").addEventListener("click", async () => {
   if (activeTab?.id && latestResult) await chrome.tabs.sendMessage(activeTab.id, { type: "SHOW_WARNING", result: latestResult });
+  window.close();
+});
+$("dashboard").addEventListener("click", async () => {
+  await chrome.tabs.create({ url: chrome.runtime.getURL("dashboard/dashboard.html") });
   window.close();
 });

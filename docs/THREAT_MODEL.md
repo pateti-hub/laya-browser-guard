@@ -2,22 +2,24 @@
 
 ## In scope
 
-- Brand-impersonating and suspicious domains
-- Misleading link labels and external destinations
+- Mixed content and insecure executable resources
+- Third-party script and iframe trust boundaries
+- Potential client-delivered secret patterns
+- Missing or permissive security headers
 - Credential or payment forms sent cross-site or over HTTP
-- Deceptive urgency and scarcity
-- Recurring-billing language and preselected subscription consent
-- Common phishing pressure language
+- Client-side patterns that complicate restrictive CSP deployment
+- Browser-visible domain, link, form, script, iframe and resource evidence
 
 ## Out of scope
 
 - Malware binary analysis
 - Reputation feeds and newly registered domain intelligence
-- Network redirects that occur after analysis
-- Guaranteed classification of fraud
+- Exploitation, vulnerability verification, port scanning or active probing
+- Complete network interception or authenticated response-header guarantees
+- Cross-origin script-body inspection
 - Content hidden inside cross-origin frames
 
-The engine reports evidence and supports an insufficient-evidence outcome rather than forcing a binary claim.
+The engine reports passive observations and recommended investigation. A finding does not prove exploitability.
 
 ## Model supply-chain controls
 

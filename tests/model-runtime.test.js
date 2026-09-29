@@ -37,17 +37,15 @@ test("compacts page context before model inference", () => {
     pageTitle: "Test", url: "https://example.com", domain: "example.com",
     text: "x".repeat(12000), linkTargets: [], buttons: [], forms: [], visibleWarnings: [], domSignals: {}
   });
-  assert.equal(compact.relevant_text.length, 9000);
+  assert.equal(compact.relevant_text.length, 7000);
 });
 
 test("normalizes typed answers into a bounded model risk score", () => {
   const evaluation = normalizeModelEvaluation({
-    isSubscriptionTrap: { noul: 0.8 },
-    hasDeceptiveUrgency: { noul: 0.7 },
-    isPhishing: { noul: 0.9 },
-    asksForSensitiveInformation: { noul: 0.8 },
-    isDomainSuspicious: { noul: 0.9 },
-    overallRisk: { choice: "high risk" },
+    meaningfulConcern: { noul: 0.9 },
+    needsManualReview: { noul: 0.85 },
+    evidenceQuality: { choice: "strong" },
+    category: { choice: "credential or payment form" },
     severity: { score: 3.5 }
   });
   assert.equal(evaluation.available, true);

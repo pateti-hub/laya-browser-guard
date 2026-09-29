@@ -23,8 +23,9 @@ async function refresh() {
 }
 
 async function load() {
-  const settings = await chrome.storage.local.get({ retainResults: false });
+  const settings = await chrome.storage.local.get({ retainResults: false, researchMode: false });
   $("retain").checked = settings.retainResults;
+  $("research").checked = settings.researchMode;
   await refresh();
   poll = setInterval(refresh, 800);
 }
@@ -46,7 +47,10 @@ $("delete").addEventListener("click", async () => {
 });
 
 $("save").addEventListener("click", async () => {
-  await chrome.storage.local.set({ retainResults: $("retain").checked });
+  await chrome.storage.local.set({
+    retainResults: $("retain").checked,
+    researchMode: $("research").checked
+  });
   $("status").textContent = "Saved";
   setTimeout(() => $("status").textContent = "", 1500);
 });
