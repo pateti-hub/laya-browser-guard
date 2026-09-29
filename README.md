@@ -16,6 +16,7 @@ A passive, local-first Chrome extension that helps developers and authorized sec
 - In-page warning overlay
 - Local-only, click-to-analyze privacy model
 - Optional Laya Q8 ONNX interpretation of structured technical evidence
+- Optional official Jev decisions through a Railway-hosted FastAPI gateway
 - User-approved model download, progress UI, SHA-256 verification and local cache
 
 ## Install for development
@@ -60,6 +61,38 @@ Active webpage
 ## Model integration status
 
 The extension uses the English `nvkudva/laya-web-q8` checkpoint pinned to revision `a1f49ac3c927b2e694a074af081d043adaa0fda1`. The model is downloaded only after informed user action, validated against published SHA-256 hashes, and cached locally. Inference uses ONNX Runtime Web over WASM. The deterministic engine remains available when the model is missing or cannot load.
+
+## Official Jev and Railway
+
+The optional server in [`server/`](server/) is a FastAPI gateway for TypeSafe's official Jev API. Deploy it to Railway with `server` as the service root, then configure:
+
+```text
+TYPESAFE_API_KEY=<official TypeSafe key>
+EXTENSION_API_TOKEN=<random gateway token>
+JEV_MODEL=jev-latest
+```
+
+The TypeSafe key remains server-side. The extension stores only the deployment-specific gateway token in the user's local Chrome profile.
+
+### Where Jev makes decisions
+
+[`server/app/providers/jev.py`](server/app/providers/jev.py) sends one structured state and five typed questions to `https://api.typesafe.ai/v1/systemone`:
+
+- `Noul`: whether the observations represent a meaningful security concern
+- `Noul`: whether manual security review is warranted
+- `Choice`: the primary security category
+- `Choice`: the quality of the evidence
+- `Score`: investigation priority
+
+Deterministic code continues to own evidence collection, severity rules, thresholds, side effects, reporting, and fail-open behavior. Jev never attacks a target or chooses browser actions.
+
+The extension supports three modes:
+
+```text
+Local   — deterministic checks + local Laya
+Remote  — deterministic checks + official Jev through Railway
+Hybrid  — deterministic checks + local Laya + official Jev
+```
 
 ## Privacy and limitations
 

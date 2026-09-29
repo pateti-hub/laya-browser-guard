@@ -9,3 +9,5 @@ Research Mode may fetch up to eight same-origin JavaScript files, with a two-meg
 Evidence remains in the browser. Retaining the latest result is off by default and can be enabled in settings.
 
 The optional model requires a one-time download of approximately 528 MB from Hugging Face after explicit user action. Only static model files are requested; page evidence is never included in those requests. Model files are stored in browser Cache Storage and can be deleted from settings.
+
+Remote and Hybrid modes are opt-in. They send only the structured, redacted findings shown in the security report to the user's configured Railway gateway. Raw script bodies, page text, form values, cookies, browsing history, and detected secret values are not included in the remote payload. The official TypeSafe API key remains on Railway.

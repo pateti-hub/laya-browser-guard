@@ -1,15 +1,50 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Security Copilot settings</title><link rel="stylesheet" href="options.css"></head>
-<body><main><h1>Website Security Copilot settings</h1><p>Analysis runs locally in your browser.</p>
-<label><input id="retain" type="checkbox"> Retain the latest analysis result locally</label>
-<label><input id="research" type="checkbox"> Enable Research Mode <small>Inspects up to eight same-origin JavaScript files for secret-shaped patterns. It never executes attacks or reads form values.</small></label>
-<section class="model-card">
-<h2>Local Laya model</h2>
-<p>The optional English Q8 model is approximately <strong>528 MB</strong>. It downloads once, is integrity-checked, and is cached locally. Page evidence is not uploaded.</p>
-<div class="progress"><i id="progress"></i></div>
-<p id="model-status">Checking model status…</p>
-<button id="download" type="button">Download and enable model</button>
-<button id="delete" type="button" class="danger">Delete local model</button>
-</section>
-<button id="save">Save settings</button><span id="status"></span>
-<h2>Privacy defaults</h2><ul><li>No form values are read.</li><li>No page evidence is sent to a server.</li><li>Only the active page is analyzed after you click the extension.</li><li>Cross-origin script bodies are never inspected.</li></ul>
-</main><script src="options.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Security Copilot settings</title><link rel="stylesheet" href="options.css">
+</head>
+<body><main>
+  <h1>Website Security Copilot settings</h1>
+  <p>Deterministic analysis remains local. Choose whether typed decisions use local Laya, official Jev, or both.</p>
+  <label><input id="retain" type="checkbox"> Retain the latest analysis result locally</label>
+  <label><input id="research" type="checkbox"> Enable Research Mode
+    <small>Inspects up to eight same-origin JavaScript files for redacted secret-shaped patterns. It never executes attacks or reads form values.</small>
+  </label>
+  <section class="remote-card">
+    <h2>Decision provider</h2>
+    <label>Inference mode
+      <select id="inference-mode">
+        <option value="local">Local Laya only</option>
+        <option value="remote">Official Jev through Railway</option>
+        <option value="hybrid">Hybrid: local Laya + official Jev</option>
+      </select>
+    </label>
+    <label>Railway gateway URL
+      <input id="remote-endpoint" type="url" placeholder="https://your-service.up.railway.app">
+    </label>
+    <label>Gateway access token
+      <input id="remote-token" type="password" autocomplete="off" placeholder="Deployment-specific extension token">
+      <small>Stored only in this Chrome profile. Never enter your TypeSafe API key here.</small>
+    </label>
+    <button id="test-remote" type="button">Test Railway gateway</button>
+    <span id="remote-status"></span>
+  </section>
+  <section class="model-card">
+    <h2>Local Laya model</h2>
+    <p>The optional English Q8 model is approximately <strong>528 MB</strong>. It downloads once, is integrity-checked, and is cached locally.</p>
+    <div class="progress"><i id="progress"></i></div>
+    <p id="model-status">Checking model status…</p>
+    <button id="download" type="button">Download and enable model</button>
+    <button id="delete" type="button" class="danger">Delete local model</button>
+  </section>
+  <button id="save">Save settings</button><span id="status"></span>
+  <h2>Privacy defaults</h2>
+  <ul>
+    <li>No form values are read.</li>
+    <li>Local mode sends no page evidence to a server.</li>
+    <li>Remote and Hybrid modes send only structured, redacted findings to your Railway gateway.</li>
+    <li>Cross-origin script bodies are never inspected.</li>
+  </ul>
+</main><script src="options.js"></script></body>
+</html>

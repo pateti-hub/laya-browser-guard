@@ -49,6 +49,57 @@ async function modelCommand(command, payload = {}) {
   });
 }
 
+async function remoteHealth(endpoint) {
+  const response = await fetch(`${endpoint.replace(/\/$/, "")}/health`, {
+    method: "GET",
+    cache: "no-store"
+  });
+  if (!response.ok) throw new Error(`Railway health check failed with ${response.status}`);
+  return response.json();
+}
+
+async function evaluateWithRemoteJev(report, endpoint, token) {
+  const response = await fetch(`${endpoint.replace(/\/$/, "")}/v1/analyze`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Extension-Token": token
+    },
+    body: JSON.stringify({
+      target: report.target,
+      domain: report.domain,
+      mode: report.mode,
+      deterministic_score: report.riskScore,
+      findings: report.findings.slice(0, 100).map((item) => ({
+        id: item.id,
+        title: item.title,
+        category: item.category,
+        severity: item.severity,
+        confidence: item.confidence,
+        location: item.location || "",
+        evidence: (item.evidence || []).slice(0, 12)
+      }))
+    })
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(payload.detail || `Official Jev request failed with ${response.status}`);
+  return payload.evaluation;
+}
+
+function combineEvaluations(local, remote) {
+  if (!local) return remote;
+  if (!remote) return local;
+  return {
+    ...remote,
+    provider: "typesafe-jev+local-laya",
+    riskScore: Math.max(local.riskScore || 0, remote.riskScore || 0),
+    localRiskScore: local.riskScore,
+    remoteRiskScore: remote.riskScore,
+    local,
+    remote
+  };
+}
+
 chrome.runtime.onMessage.addListener((message, _sender, respond) => {
   if (message?.target === "offscreen") return false;
   (async () => {
@@ -73,21 +124,48 @@ chrome.runtime.onMessage.addListener((message, _sender, respond) => {
         respond({ ok: true, status: current.modelStatus });
         return;
       }
+      if (message?.type === "REMOTE_HEALTH") {
+        respond({ ok: true, health: await remoteHealth(message.endpoint) });
+        return;
+      }
       if (message?.type !== "ANALYZE_CONTEXT") return;
 
-      const settings = await chrome.storage.local.get({ modelEnabled: false, retainResults: false });
-      let modelEvaluation = null;
-      if (settings.modelEnabled) {
+      const settings = await chrome.storage.local.get({
+        modelEnabled: false,
+        retainResults: false,
+        inferenceMode: "local",
+        remoteEndpoint: "",
+        remoteToken: ""
+      });
+      let localEvaluation = null;
+      let remoteEvaluation = null;
+      let remoteError = null;
+      if (settings.modelEnabled && ["local", "hybrid"].includes(settings.inferenceMode)) {
         try {
           const response = await modelCommand("evaluate", { context: message.context });
-          if (response?.ok) modelEvaluation = response.evaluation;
+          if (response?.ok) localEvaluation = response.evaluation;
         } catch {
           // Deterministic checks remain available when the optional model cannot run.
         }
       }
       const headerSnapshot = await inspectHeaders(message.context.url);
       const deterministicReport = analyzeSecurityContext(message.context, headerSnapshot);
+      if (["remote", "hybrid"].includes(settings.inferenceMode)) {
+        try {
+          if (!settings.remoteEndpoint || !settings.remoteToken) throw new Error("Railway Jev settings are incomplete");
+          remoteEvaluation = await evaluateWithRemoteJev(
+            deterministicReport,
+            settings.remoteEndpoint,
+            settings.remoteToken
+          );
+        } catch (error) {
+          remoteError = error instanceof Error ? error.message : "Official Jev request failed";
+        }
+      }
+      const modelEvaluation = combineEvaluations(localEvaluation, remoteEvaluation);
       const report = fuseModelEvaluation(deterministicReport, modelEvaluation);
+      report.inferenceMode = settings.inferenceMode;
+      if (remoteError) report.remoteError = remoteError;
       const primary = report.findings[0];
       const result = {
         verdict: report.verdict,

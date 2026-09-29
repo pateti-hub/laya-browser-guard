@@ -28,7 +28,12 @@ function render(result) {
   $("verdict").style.color = color; $("score").textContent = `${result.riskScore}/100`;
   $("meter").style.width = `${result.riskScore}%`; $("meter").style.background = color;
   $("explanation").textContent = result.explanation;
-  $("engine").textContent = result.model?.available ? "Laya Q8 model + deterministic signals" : "Deterministic local analysis";
+  const engines = {
+    "typesafe-jev": "Official Jev via Railway + deterministic signals",
+    "typesafe-jev+local-laya": "Official Jev + local Laya + deterministic signals",
+    "laya-web-q8": "Local Laya Q8 + deterministic signals"
+  };
+  $("engine").textContent = engines[result.model?.provider] || "Deterministic local analysis";
   $("evidence").replaceChildren(...result.evidence.map((text) => Object.assign(document.createElement("li"), { textContent: text })));
   $("result").hidden = false;
 }

@@ -3,13 +3,14 @@
   "name": "Laya Website Security Copilot",
   "version": "0.1.0",
   "minimum_chrome_version": "121",
-  "description": "Passive browser security observations, deterministic checks, and local Laya-assisted interpretation.",
+  "description": "Passive browser security observations with local Laya and optional official Jev decisions.",
   "permissions": ["activeTab", "scripting", "storage", "offscreen", "unlimitedStorage"],
   "host_permissions": [
     "https://huggingface.co/*",
     "https://*.huggingface.co/*",
     "https://*.xethub.hf.co/*"
   ],
+  "optional_host_permissions": ["https://*/*"],
   "background": {
     "service_worker": "background.js",
     "type": "module"

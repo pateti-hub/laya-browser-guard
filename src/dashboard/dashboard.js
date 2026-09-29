@@ -31,7 +31,8 @@ function render() {
   $("empty").hidden = true;
   $("report").hidden = false;
   $("domain").textContent = report.domain || report.target;
-  $("meta").textContent = `${report.observationCount} observations • ${report.mode} mode • ${new Date(report.generatedAt).toLocaleString()}`;
+  const provider = report.model?.provider || "deterministic";
+  $("meta").textContent = `${report.observationCount} observations • ${report.mode} mode • ${provider} • ${new Date(report.generatedAt).toLocaleString()}`;
   $("score").textContent = `${report.riskScore}/100`;
   $("verdict").textContent = report.verdict.replaceAll("_", " ");
   $("verdict").style.color = report.verdict === "HIGH_RISK" ? "#f87171" : report.verdict === "SUSPICIOUS" ? "#fb923c" : "#34d399";
@@ -48,6 +49,7 @@ function render() {
     findings.append(button);
   }
   $("limitations").replaceChildren(...report.limitations.map((text) => element("li", text)));
+  if (report.remoteError) $("limitations").append(element("li", `Official Jev unavailable: ${report.remoteError}`));
   if (report.findings[0]) showDetail(report.findings[0]);
 }
 
