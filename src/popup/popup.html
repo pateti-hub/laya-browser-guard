@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Website Security Copilot</title><link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main>
+    <header><span class="mark">L</span><div><strong>Website Security Copilot</strong><small>Passive, local-first analysis</small></div></header>
+    <section id="idle"><p>Inspect browser-visible scripts, forms, resources, headers, and potential client-side security issues.</p><button id="analyze">Analyze this website</button></section>
+    <section id="loading" hidden><div class="spinner"></div><p>Collecting safe page signals…</p></section>
+    <section id="result" hidden>
+      <div class="score-row"><span id="verdict"></span><strong id="score"></strong></div>
+      <div class="meter"><i id="meter"></i></div><p id="explanation"></p><p id="engine" class="engine"></p><ul id="evidence"></ul>
+      <button id="show" class="secondary">Show on page</button>
+      <button id="dashboard" class="secondary">Open security dashboard</button>
+      <button id="again" class="link">Analyze again</button>
+    </section>
+    <p id="error" class="error" hidden></p>
+    <footer>Passive observations only. No passwords or form values are collected. <a href="../options/options.html" target="_blank">Settings</a></footer>
+  </main><script src="popup.js"></script>
+</body>
+</html>
